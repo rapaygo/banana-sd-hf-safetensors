@@ -33,16 +33,18 @@ def handler(context: dict, request: Request) -> Response:
     model = context.get("model")
 
     prompt = request.json.get("prompt")
-    negative_prompt = "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers), cleavage, nudity, naked, nude"
-
+  
+    # negative_prompt = "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers), cleavage, nudity, naked, nude"
+    negative_prompt = "(worst quality, low quality:1.4), (interlocked fingers)"
+    
     image = model(
         prompt=prompt,
         negative_prompt=negative_prompt,
-        guidance_scale=7,
-        num_inference_steps=request.json.get("steps", 50),
+        guidance_scale=request.json.get("guidance_scale", 7),
+        num_inference_steps=request.json.get("num_inference_steps", 50),
         generator=torch.Generator(device="cuda").manual_seed(request.json.get("seed")) if request.json.get("seed") else None,
-        width=512,
-        height=768,
+        width=request.json.get("width", 512),
+        height=request.json.get("height", 512),
     ).images[0]
 
     buffered = BytesIO()
